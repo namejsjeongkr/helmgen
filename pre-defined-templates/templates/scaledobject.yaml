@@ -1,0 +1,27 @@
+{{- if and (.Values.scaledObject) (.Values.scaledObject.enabled) -}}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "chart.name" . }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    name: {{ include "chart.name" . }}
+  minReplicaCount: {{ .Values.scaledObject.object.minReplicaCount }}
+  maxReplicaCount: {{ .Values.scaledObject.object.maxReplicaCount }}
+  cooldownPeriod: {{ .Values.scaledObject.object.cooldownPeriod }}
+  triggers:
+    {{- range .Values.scaledObject.object.triggers }}
+    - type: {{ .type }}
+      {{- if eq .type "cpu" }}
+      metricType: {{ .metricType }}
+      {{- end }}
+      metadata:
+        {{- range $key, $value := .metadata }}
+        {{ $key }}: "{{ $value }}"
+        {{- end }}
+    {{- end }}
+{{- end }}
