@@ -1,3 +1,4 @@
+{{- if and (.Values.service) (.Values.service.enabled) -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,10 +11,17 @@ metadata:
   {{- end }}
 spec:
   type: {{ .Values.service.type }}
+  {{- if .Values.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
+  {{- end }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: {{ .Values.service.targetPort | default "http" }}
       protocol: TCP
       name: http
+  {{- if .Values.service.extraPorts }}
+    {{- toYaml .Values.service.extraPorts | nindent 4 }}
+  {{- end }}
   selector:
     {{- include "chart.selectorLabels" . | nindent 4 }}
+{{- end }}
