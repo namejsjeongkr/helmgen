@@ -1,6 +1,6 @@
-{{- if and (.Values.rollout) (.Values.rollout.enabled) -}}
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+{{- if and (.Values.deployment) (.Values.deployment.enabled) -}}
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: {{ include "chart.name" . }}
   labels:

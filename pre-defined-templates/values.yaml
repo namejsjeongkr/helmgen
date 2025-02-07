@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 application:
-  profile: prod
+  profile: dev/stage/prod
 
 replicaCount: 1
 
@@ -38,9 +38,16 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+
 service:
+  enabled: true
   type: ClusterIP
   port: 80
+  targetPort: http
+  externalTrafficPolicy: ""
+  extraPorts: []
+  annotations: {}
+
 
 ingress:
   enabled: false
@@ -58,6 +65,7 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -69,6 +77,7 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
+
 
 autoscaling:
   enabled: false
@@ -92,15 +101,18 @@ readinessProbe:
     path: /
     port: http
 
+
 pdb:
   enabled: false
   minAvailable: 1
+
 
 # Datadog Config (optional)
 datadog:
   enabled: false
   apm:
     portEnabled: false
+
 
 # KEDA ScaledObject Config (optional)
 scaledObject:
@@ -113,3 +125,26 @@ scaledObject:
     #   metricType: Utilization
     #   metadata:
     #     value: "50"
+
+
+# Deployment or Rollout configuration
+deployment:
+  enabled: true
+
+
+rollout:
+  enabled: false
+
+
+# Container environment variables
+container:
+  env: []
+
+# Volume mounts for the container
+volumeMounts: []
+
+# Volumes for the pod
+volumes: []
+
+# Strategy for deployment/rollout
+strategy: {}

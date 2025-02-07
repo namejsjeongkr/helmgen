@@ -47,7 +47,6 @@ Selector labels
 */}}
 {{- define "chart.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "chart.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
@@ -58,5 +57,17 @@ Create the name of the service account to use
 {{- default (include "chart.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the image pull secret names
+*/}}
+{{- define "chart.imagePullSecrets" -}}
+{{- if .Values.imagePullSecrets }}
+imagePullSecrets:
+{{- range .Values.imagePullSecrets }}
+  - name: {{ . }}
+{{- end }}
 {{- end }}
 {{- end }}
