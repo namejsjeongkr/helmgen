@@ -20,7 +20,8 @@ class TestCreateHelmChart(unittest.TestCase):
         # Mock Path
         mock_path = Mock()
         mock_path_class.return_value = mock_path
-        mock_path.__truediv__.return_value = mock_path
+        mock_path.__truediv__ = Mock(return_value=mock_path)  # __truediv__ 메서드 모킹
+        mock_path.parent = mock_path  # parent 속성도 모킹
 
         chart_name = "test-chart"
         create_helm_chart(chart_name)
