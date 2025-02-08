@@ -33,5 +33,6 @@ Homepage = "https://github.com/namejsjeongkr/helmgen"
 helmgen = "helmgen.main:main"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 packages = ["helmgen"]
 
