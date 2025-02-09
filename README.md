@@ -4,7 +4,7 @@ helmgen is a Helm plugin designed to simplify and accelerate the creation of Hel
 
 ## Installation
 
-1.  Ensure you have Helm installed.
+1.  Ensure you have Helm installed. (Ref : https://helm.sh/docs/intro/install/)
 2.  Install the helmgen plugin by running:
 ```bash
 helm plugin install https://github.com/namejsjeongkr/helmgen
