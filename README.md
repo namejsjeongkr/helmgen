@@ -1,4 +1,4 @@
-# helmgen
+# helmgen | Helm Generator
 
 helmgen is a Helm plugin designed to simplify and accelerate the creation of Helm charts.
 
