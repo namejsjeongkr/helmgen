@@ -1,0 +1,7 @@
+name: "helmgen"
+version: "0.1.0"
+usage: "Generate Helm charts using helmgen"
+description: "A plugin to generate Helm charts using the helmgen tool"
+command: "$HELM_PLUGIN_DIR/helmgen.sh"
+hooks:
+  install: "pip install -r $HELM_PLUGIN_DIR/requirements.txt"
