@@ -10,7 +10,7 @@ helmgen is a Helm plugin designed to simplify and accelerate the creation of Hel
 helm plugin install https://github.com/namejsjeongkr/helmgen
 ```
 
-## How to use ?
+## Usage
 
 1. To create a new Helm chart, execute the following command:
 ```bash
