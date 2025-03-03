@@ -22,14 +22,19 @@ class TestCreateHelmChart(unittest.TestCase):
         mock_path_class.return_value = mock_path
         mock_path.__truediv__ = Mock(return_value=mock_path)
         mock_path.parent = mock_path
+        mock_path.exists.return_value = False  # Assume env directory doesn't exist
 
         chart_name = "test-chart"
-        create_helm_chart(chart_name)
+        env_name = "dev"
+        create_helm_chart(chart_name, env_name)
 
         # Verify calls
         mock_makedirs.assert_called_once()
-        mock_copytree.assert_called_once()
-        mock_copy.assert_called_once()
+        mock_copytree.assert_called()
+        mock_copy.assert_called()
         mock_env_instance.get_template.assert_called_once_with("Chart.yaml")
-        mock_template.render.assert_called_once_with(chart_name=chart_name)
+        mock_template.render.assert_called_once_with(chart_name=chart_name, env_name=env_name)
         mock_file.assert_called()
+
+if __name__ == '__main__':
+    unittest.main()
