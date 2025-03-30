@@ -20,7 +20,7 @@ helm plugin install https://github.com/namejsjeongkr/helmgen
 
 1.  To create a new Helm chart, execute the following command (replace `my-app` with your desired chart name):
 ```bash
-helm helmgen create <my-app>
+helm helmgen create <my-app> <ENV>
 ```
 2.  The generated chart will be saved in the `my-app` folder within your current directory.
 3.  Review the chart structure and modify it as needed:
