@@ -13,33 +13,33 @@ def create_helm_chart(chart_name: str, env_name: str) -> None:
     """
     project_root = Path(__file__).parent.parent.parent
     template_dir = project_root / "pre-defined-templates"
-    env = Environment(loader=FileSystemLoader(str(template_dir)))
+    env_dir = template_dir / env_name
 
+    if not env_dir.exists() or not env_dir.is_dir():
+        print(f"[ERROR] Environment '{env_name}' not found in pre-defined templates.")
+        sys.exit(1)
+
+    env = Environment(loader=FileSystemLoader(str(env_dir)))
     new_chart_dir = Path.cwd() / chart_name
     os.makedirs(new_chart_dir, exist_ok=True)
 
-    # Copy environment-specific files
-    env_dir = template_dir / env_name
-    if env_dir.exists():
-        shutil.copytree(env_dir, new_chart_dir, dirs_exist_ok=True)
-    else:
-        print(f"Environment '{env_name}' not found. Using default templates.")
-        shutil.copytree(template_dir / "templates", new_chart_dir / "templates")
-        shutil.copy(template_dir / "values.yaml", new_chart_dir / "values.yaml")
+    shutil.copytree(env_dir, new_chart_dir, dirs_exist_ok=True)
 
-    # Render Chart.yaml
     chart_yaml_template = env.get_template("Chart.yaml")
-    chart_yaml_content = chart_yaml_template.render(chart_name=chart_name, env_name=env_name)
+    chart_yaml_content = chart_yaml_template.render(
+        chart_name=chart_name,
+        env_name=env_name
+    )
     with open(new_chart_dir / "Chart.yaml", "w") as f:
         f.write(chart_yaml_content)
 
-    print(f"Helm Chart '{chart_name}' for environment '{env_name}' creation completed.")
+    print(f"Helm Chart '{chart_name}' for environment '{env_name}' created successfully.")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print(
             "Usage: python main.py <new_chart_name> <environment>\n"
-            "Please provide the name for the new Helm chart and the environment (dev, stg, prd)."
+            "Supported environments: dev, stg, prd"
         )
         sys.exit(1)
     
