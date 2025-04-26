@@ -5,44 +5,54 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, Template
 
 def create_helm_chart(chart_name: str, env_name: str) -> None:
-    """
-    Create a new Helm chart based on pre-defined templates for a specific environment.
+    """Create Helm chart for specified environment"""
     
-    :param chart_name: Name of the new Helm chart
-    :param env_name: Name of the environment (dev, stg, prd)
-    """
-    project_root = Path(__file__).parent.parent.parent
-    template_dir = project_root / "pre-defined-templates"
-    env_dir = template_dir / env_name
-
-    if not env_dir.exists() or not env_dir.is_dir():
-        print(f"[ERROR] Environment '{env_name}' not found in pre-defined templates.")
+    # 1. Validate environment directory
+    project_root = Path(__file__).resolve().parent.parent.parent
+    env_dir = project_root / "pre-defined-templates" / env_name
+    
+    if not env_dir.exists():
+        print(f"Error: Environment '{env_name}' directory does not exist")
+        print(f"Valid environments: {list_env_directories(project_root)}")
         sys.exit(1)
 
-    env = Environment(loader=FileSystemLoader(str(env_dir)))
-    new_chart_dir = Path.cwd() / chart_name
-    os.makedirs(new_chart_dir, exist_ok=True)
+    # 2. Validate output directory
+    output_dir = Path.cwd() / chart_name
+    if output_dir.exists():
+        print(f"Error: Output directory '{chart_name}' already exists")
+        sys.exit(1)
 
-    shutil.copytree(env_dir, new_chart_dir, dirs_exist_ok=True)
+    # 3. Copy environment templates
+    try:
+        shutil.copytree(env_dir, output_dir)
+        post_process_chart(output_dir, chart_name, env_name)
+    except Exception as e:
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
+        print(f"Error: Chart creation failed - {str(e)}")
+        sys.exit(1)
 
-    chart_yaml_template = env.get_template("Chart.yaml")
-    chart_yaml_content = chart_yaml_template.render(
-        chart_name=chart_name,
-        env_name=env_name
-    )
-    with open(new_chart_dir / "Chart.yaml", "w") as f:
-        f.write(chart_yaml_content)
+    print(f"Success: Created chart '{chart_name}' for {env_name} environment")
 
-    print(f"Helm Chart '{chart_name}' for environment '{env_name}' created successfully.")
+def list_env_directories(project_root: Path) -> list:
+    """List available environment directories"""
+    template_dir = project_root / "pre-defined-templates"
+    return [d.name for d in template_dir.iterdir() if d.is_dir()]
+
+def post_process_chart(chart_dir: Path, chart_name: str, env_name: str) -> None:
+    """Finalize chart metadata"""
+    chart_file = chart_dir / "Chart.yaml"
+    content = chart_file.read_text()
+    
+    # Replace placeholders (if any)
+    content = content.replace("{{ chart_name }}", chart_name)
+    content = content.replace("{{ env_name }}", env_name)
+    
+    chart_file.write_text(content)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print(
-            "Usage: python main.py <new_chart_name> <environment>\n"
-            "Supported environments: dev, stg, prd"
-        )
+        print("Usage: python main.py <CHART_NAME> <ENV_NAME>")
         sys.exit(1)
     
-    chart_name = sys.argv[1]
-    env_name = sys.argv[2]
-    create_helm_chart(chart_name, env_name)
+    create_helm_chart(sys.argv[1], sys.argv[2])
