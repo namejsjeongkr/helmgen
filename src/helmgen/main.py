@@ -15,6 +15,10 @@ def create_helm_chart(chart_name: str, env: str) -> None:
     
     project_root: Path = Path(__file__).parent.parent.parent
     template_dir: Path = project_root / "pre-defined-templates"
+    
+    print(f"[DEBUG] project_root: {project_root}")
+    print(f"[DEBUG] template_dir: {template_dir}")
+    print(f"[DEBUG] env_dir: {template_dir / env}")
 
     if not template_dir.exists():
         print(f"[ERROR] Template directory not found: {template_dir}", file=sys.stderr)
