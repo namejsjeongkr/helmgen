@@ -2,75 +2,72 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from typing import NoReturn
 from jinja2 import Environment, FileSystemLoader, Template
 
 def create_helm_chart(chart_name: str, env: str) -> None:
-    """
-    Create a new Helm chart with environment-specific configuration.
-
-    :param chart_name: Name of the new Helm chart
-    :param env: Target environment (dev/stg/prd)
-    """
+    """Create a Helm chart with environment-specific configuration."""
     
-    project_root: Path = Path(__file__).parent.parent.parent
-    template_dir: Path = project_root / "pre-defined-templates"
-    
-    print(f"[DEBUG] project_root: {project_root}")
-    print(f"[DEBUG] template_dir: {template_dir}")
-    print(f"[DEBUG] env_dir: {template_dir / env}")
-
-    if not template_dir.exists():
-        print(f"[ERROR] Template directory not found: {template_dir}", file=sys.stderr)
+    # Get plugin root from Helm environment
+    helm_plugin_dir = os.environ.get("HELM_PLUGIN_DIR")
+    if not helm_plugin_dir:
+        print("❌ HELM_PLUGIN_DIR environment variable not set", file=sys.stderr)
         sys.exit(1)
 
-    env_dir: Path = template_dir / env
+    # Configure paths using Helm plugin directory
+    template_dir = Path(helm_plugin_dir) / "pre-defined-templates"
+    env_dir = template_dir / env
+
+    # Debug output for path verification
+    print(f"[DEBUG] Using template directory: {template_dir}")
     print(f"[DEBUG] Checking environment directory: {env_dir}")
+
+    # Validate template structure
+    if not template_dir.exists():
+        print(f"❌ Template directory missing: {template_dir}", file=sys.stderr)
+        sys.exit(1)
     if not env_dir.exists():
-        print(f"[ERROR] Invalid environment: {env} (Path: {env_dir})", file=sys.stderr)
+        print(f"❌ Invalid environment '{env}'. Valid options: dev, stg, prd", file=sys.stderr)
         sys.exit(1)
 
+    # Initialize Jinja environment
     env_loader = FileSystemLoader(str(env_dir))
-    env_jinja = Environment(loader=env_loader)
+    jinja_env = Environment(loader=env_loader)
 
-    new_chart_dir: Path = Path.cwd() / chart_name
-    os.makedirs(new_chart_dir, exist_ok=True)
+    # Create chart directory
+    chart_dir = Path.cwd() / chart_name
+    chart_dir.mkdir(exist_ok=True)
 
+    # Generate Chart.yaml
     try:
-        chart_yaml_template: Template = env_jinja.get_template("Chart.yaml")
-        chart_yaml_content: str = chart_yaml_template.render(chart_name=chart_name)
-        with open(new_chart_dir / "Chart.yaml", "w") as f:
-            f.write(chart_yaml_content)
+        chart_template = jinja_env.get_template("Chart.yaml")
+        chart_content = chart_template.render(chart_name=chart_name)
+        (chart_dir / "Chart.yaml").write_text(chart_content)
     except Exception as e:
-        print(f"[ERROR] Failed to render Chart.yaml: {e}", file=sys.stderr)
+        print(f"❌ Failed to generate Chart.yaml: {str(e)}", file=sys.stderr)
         sys.exit(1)
 
-    env_template_dir: Path = env_dir / "templates"
-    if not env_template_dir.exists():
-        print(f"[ERROR] templates directory not found in {env_dir}", file=sys.stderr)
-        sys.exit(1)
+    # Copy templates
+    templates_src = env_dir / "templates"
+    templates_dest = chart_dir / "templates"
     try:
-        shutil.copytree(env_template_dir, new_chart_dir / "templates")
+        shutil.copytree(templates_src, templates_dest)
     except Exception as e:
-        print(f"[ERROR] Failed to copy templates: {e}", file=sys.stderr)
+        print(f"❌ Failed to copy templates: {str(e)}", file=sys.stderr)
         sys.exit(1)
 
-    env_values_path: Path = env_dir / "values.yaml"
-    if not env_values_path.exists():
-        print(f"[ERROR] values.yaml not found in {env_dir}", file=sys.stderr)
-        sys.exit(1)
+    # Copy values.yaml
+    values_file = env_dir / "values.yaml"
     try:
-        shutil.copy(env_values_path, new_chart_dir / "values.yaml")
+        shutil.copy(values_file, chart_dir / "values.yaml")
     except Exception as e:
-        print(f"[ERROR] Failed to copy values.yaml: {e}", file=sys.stderr)
+        print(f"❌ Failed to copy values.yaml: {str(e)}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"[{env}] Helm Chart '{chart_name}' created successfully.")
+    print(f"✅ Successfully created '{chart_name}' chart for {env} environment")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python main.py <CHART_NAME> <ENV>", file=sys.stderr)
         sys.exit(1)
-
-    chart_name, env = sys.argv[1], sys.argv[2]
-    create_helm_chart(chart_name, env)
+    
+    create_helm_chart(sys.argv[1], sys.argv[2])
