@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "[DEBUG] HELM_PLUGIN_DIR: $HELM_PLUGIN_DIR"
-
 create_helm_chart() {
     chart_name=$1
     env_name=$2
@@ -18,3 +16,10 @@ create_helm_chart() {
         exit 1
     fi
 }
+
+if [ "$#" -ne 3 ] || [ "$1" != "create" ]; then
+    echo "Usage: helm helmgen create <CHART_NAME> <ENVIRONMENT>"
+    exit 1
+fi
+
+create_helm_chart "$2" "$3"
