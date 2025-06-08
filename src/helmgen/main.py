@@ -15,17 +15,23 @@ def create_helm_chart(chart_name: str, env: str) -> None:
 
     # Configure template paths
     template_dir = Path(helm_plugin_dir) / "pre-defined-templates"
-    values_file = template_dir / "values" / f"{env}.yaml"
+    values_dir = template_dir / "values"
+    allowed_envs = ["dev", "stg", "prd"]
+    values_file = values_dir / f"{env}.yaml"
     chart_template = template_dir / "Chart.yaml"
 
     # Validate required resources
     if not template_dir.exists():
         print(f"Error: Template directory not found at {template_dir}", file=sys.stderr)
         sys.exit(1)
-        
+    if not values_dir.exists():
+        print(f"Error: Values directory not found at {values_dir}", file=sys.stderr)
+        sys.exit(1)
+    if env not in allowed_envs:
+        print(f"Error: Invalid environment '{env}'. Valid options: {allowed_envs}", file=sys.stderr)
+        sys.exit(1)
     if not values_file.exists():
-        valid_envs = [f.stem for f in (template_dir / "values").glob("*.yaml")]
-        print(f"Error: Invalid environment '{env}'. Valid options: {valid_envs}", file=sys.stderr)
+        print(f"Error: Values file for environment '{env}' not found at {values_file}", file=sys.stderr)
         sys.exit(1)
 
     # Create output directory
