@@ -4,4 +4,4 @@ usage: "Generate Helm charts using helmgen"
 description: "A plugin to generate Helm charts using the helmgen tool"
 command: "$HELM_PLUGIN_DIR/helmgen.sh"
 hooks:
-  install: "uv pip install -r requirements.txt"
+  install: "uv pip install --user -r requirements.txt"
