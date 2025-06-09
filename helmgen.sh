@@ -1,8 +1,5 @@
 #!/bin/bash
 
-which python3
-python3 --version
-
 
 create_helm_chart() {
     chart_name=$1
