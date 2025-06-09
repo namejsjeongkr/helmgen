@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 
 def create_helm_chart(chart_name: str, env: str) -> None:
     """Create Helm chart using project-relative paths"""
