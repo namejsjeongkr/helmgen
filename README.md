@@ -7,6 +7,36 @@ helmgen is a Helm plugin designed to simplify and accelerate the creation of Hel
 Ensure you have Helm installed. See the [official Helm installation guide](https://helm.sh/docs/intro/install/) for details.
 
 
+## Python Dependencies
+
+helmgen requires the `jinja2` library for template rendering.  
+If you see an error like `ModuleNotFoundError: No module named 'jinja2'`,  
+you need to install it for the Python environment used by Helm.
+
+**On macOS or other systems with "externally managed" Python environments (PEP 668), you may need to use the following command:**
+```bash
+python3 -m pip install --break-system-packages jinja2==3.1.6
+```
+
+- If you are using a requirements file:
+```bash
+python3 -m pip install --break-system-packages -r requirements.txt
+```
+
+
+> **Warning:**  
+> The `--break-system-packages` option allows pip to install packages into the system Python environment, which may risk breaking system tools.  
+> Use this option only if you understand the risks.  
+> For more information, see [PEP 668](https://peps.python.org/pep-0668/).
+
+Alternatively, you can use a [virtual environment](https://docs.python.org/3/library/venv.html):
+```bash
+python3 -m venv myenv
+source myenv/bin/activate
+pip install -r requirements.txt
+```
+
+
 ## Installation
 
 1.  Install the helmgen plugin by running:
@@ -46,6 +76,15 @@ For more detailed usage information and options, use the command `helm helmgen -
 
 
 ## Troubleshooting
+
+### ModuleNotFoundError: No module named 'jinja2'
+
+If you encounter this error on macOS or Ubuntu, your Python environment may be "externally managed."
+To fix this, install dependencies with:
+
+```bash
+python3 -m pip install --break-system-packages -r requirements.txt
+```
 
 If you encounter issues, try the following:
 
